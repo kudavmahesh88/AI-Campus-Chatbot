@@ -39,15 +39,16 @@ Installation
 
 1. Clone Repository
 
-git clone https://github.com/yourusername/campusbot-ai.git
-cd campusbot-ai
+git clone 
+https://github.com/kudavmahesh88/AI-Campus-Chatbot.git
+cd AI-Campus-Chatbot
 
 2. Install Dependencies
 
 pip install flask
 pip install flask-cors
 pip install openai
-Or:
+Or
 pip install -r requirements.txt
 
 Configure API Key
