@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CampusBot AI</title>
+
+<style>
+body{
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#000000,#111827,#1f2937);
+    min-height:100vh;
+    margin:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    width:90%;
+    max-width:900px;
+}
+
+h2{
+    text-align:center;
+    color:white;
+}
+
+#chat{
+    background:rgba(255,255,255,0.08);
+    height:450px;
+    overflow-y:auto;
+    padding:15px;
+    border-radius:15px;
+    margin-bottom:15px;
+    backdrop-filter: blur(10px);
+}
+
+.user{
+    color:white;
+    background:#2563eb;
+    padding:10px 15px;
+    border-radius:15px;
+    margin:10px 0 10px auto;
+    width:fit-content;
+    max-width:75%;
+}
+
+.bot{
+    color:white;
+    background:#374151;
+    padding:10px 15px;
+    border-radius:15px;
+    margin:10px 0;
+    width:fit-content;
+    max-width:75%;
+    white-space: pre-wrap;
+    line-height:1.6;
+}
+
+.input-area{
+    display:flex;
+}
+
+input{
+    flex:1;
+    padding:15px;
+    border:none;
+    border-radius:10px 0 0 10px;
+    font-size:16px;
+}
+
+button{
+    padding:15px 25px;
+    border:none;
+    background:#10b981;
+    color:white;
+    border-radius:0 10px 10px 0;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#059669;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>🎓 CampusBot AI - Student Assistant</h2>
+
+    <div id="chat"></div>
+
+    <div class="input-area">
+        <input type="text" id="message" placeholder="Ask anything...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script>
+
+async function sendMessage(){
+
+    const input = document.getElementById("message");
+    const chat = document.getElementById("chat");
+
+    const text = input.value.trim();
+
+    if(!text) return;
+
+    chat.innerHTML += `
+        <div class="user">
+            You: ${text}
+        </div>
+    `;
+
+    input.value = "";
+
+    try{
+
+        const response = await fetch("/chat",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                message:text
+            })
+        });
+
+        const data = await response.json();
+
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "bot";
+        typingDiv.textContent = "🤖 CampusBot is typing...";
+        chat.appendChild(typingDiv);
+
+        chat.scrollTop = chat.scrollHeight;
+
+        setTimeout(() => {
+
+            typingDiv.remove();
+
+            const botDiv = document.createElement("div");
+            botDiv.className = "bot";
+            chat.appendChild(botDiv);
+
+            let botText = "🤖 CampusBot\n\n" + data.reply;
+            let i = 0;
+
+            function typeWriter(){
+
+                if(i < botText.length){
+
+                    botDiv.textContent += botText.charAt(i);
+                    i++;
+
+                    chat.scrollTop = chat.scrollHeight;
+
+                    setTimeout(typeWriter,15);
+                }
+            }
+
+            typeWriter();
+
+        },1000);
+
+    }
+    catch(error){
+
+        chat.innerHTML += `
+            <div class="bot">
+                Error: ${error.message}
+            </div>
+        `;
+    }
+}
+
+</script>
+
+</body>
+</html>
